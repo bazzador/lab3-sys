@@ -10,16 +10,31 @@ namespace lab3_sys
     {
         protected int x;
         protected int y;
+
+        private int ageToBreed;
+        private int currentAge;
+
+        private int breedInterval;
+        private int lastTimeBreeding;
+
         protected static Random rand = new Random();
-        public Fish(int x, int y)
+        public Fish(int x, int y, int ageToBreed, int currentAge, int breedInterval, int lastTimeBreeding)
         {
             this.x = x;
             this.y = y;
+            this.ageToBreed = ageToBreed;
+            this.currentAge = currentAge;
+            this.breedInterval = breedInterval;
+            this.lastTimeBreeding = lastTimeBreeding;
         }
         public int X => x;
         public int Y => y;
+        public int CurrentAge => currentAge;
+        public int AgeToBreed => ageToBreed;
+        public int BreedInterval => breedInterval;
+        public int LastTimeBreeding => lastTimeBreeding;
 
-        public virtual void Move(bool[,] fishPos) // left right up down
+        private List<(int, int)> SearchFreeSpaces(bool[,] fishPos) // left right up down
         {
             int[,] availableDirections = new int[4, 2];
 
@@ -48,6 +63,11 @@ namespace lab3_sys
                     freeDirections.Add((availableDirections[i, 0], availableDirections[i, 1]));
                 }
             }
+            return freeDirections;
+        }
+        public virtual void Move(bool[,] fishPos) 
+        {
+            List<(int, int)> freeDirections = SearchFreeSpaces(fishPos);
 
             if (freeDirections.Count > 0)
             {
@@ -57,6 +77,31 @@ namespace lab3_sys
             }
             
         }
+        public void TickFish() // риба кожен тік росте або рахує час з останнього розмноження
+        {
+            if(currentAge < ageToBreed)
+                currentAge++;
+            else lastTimeBreeding++;
+        }
+        public bool CanBreed()
+        {
+            return currentAge >= ageToBreed && lastTimeBreeding >= breedInterval;
+        }
 
+        public virtual Fish Breed(bool[,] fishPos)
+        {
+            List<(int, int)> freeDirections = SearchFreeSpaces(fishPos);
+            if (CanBreed())
+            {
+                if (freeDirections.Count > 0)
+                {
+                    int direction = rand.Next(0, freeDirections.Count);
+                    lastTimeBreeding = 0;
+                    return new Fish(freeDirections[direction].Item1, freeDirections[direction].Item2, ageToBreed, 0, breedInterval, 0);
+                }
+                return null;
+            }
+            return null;
+        }
     }
 }

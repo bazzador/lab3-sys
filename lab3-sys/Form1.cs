@@ -18,8 +18,11 @@ namespace lab3_sys
         private int sizeY = 50;
         private int pixelSize = 5;
         private Random rand = new Random();
+
         private static Lake lake;
 
+        private static int ageToBreed = 3;
+        private static int breedInterval = 3;
 
         public Form1()
         {
@@ -52,7 +55,7 @@ namespace lab3_sys
                     int y = rand.Next(0, sizeY);
                     if(!lake.IsOccupied(x, y))
                     {
-                        Fish fish = new Fish(x, y);
+                        Fish fish = new Fish(x, y, ageToBreed, rand.Next(0, ageToBreed), breedInterval, 0);
                         lake.AddFish(fish);
                         
                     }
@@ -85,9 +88,25 @@ namespace lab3_sys
 
         }
 
+        private void Step2() // карасі розмножуються
+        {
+            List<Fish> newFishes = new List<Fish>();
+            lake.Fishes.ForEach(fish =>
+            {
+                fish.TickFish();
+                Fish newFish = fish.Breed(lake.FishPos);
+                if (newFish != null)
+                {
+                    newFishes.Add(newFish);
+                }
+            });
+            newFishes.ForEach(fish => lake.AddFish(fish));
+        }
+
         private void Simulate()
         {
             Step1();
+            Step2();
             DrawLake();
         }
 
