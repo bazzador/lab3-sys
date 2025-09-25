@@ -24,6 +24,9 @@ namespace lab3_sys
         private static int ageToBreed = 3;
         private static int breedInterval = 3;
 
+        private static int predatorAgeToBreed = 4;
+        private static int predatorBreedInterval = 4;
+        private static int predatorStarvationInterval = 6;
         public Form1()
         {
             InitializeComponent();
@@ -46,20 +49,30 @@ namespace lab3_sys
         }
 
 
-        private void InitializeLake(int fishCount)
+        private void InitializeLake(int fishCount, int predatorCount)
         {
             lake = new Lake(sizeX, sizeY);
-                do
+                do // карасі
                 {
                     int x = rand.Next(0, sizeX);
                     int y = rand.Next(0, sizeY);
-                    if(!lake.IsOccupied(x, y))
+                    if(!lake.FishGrid.IsOccupiedByFish(x,y))
                     {
                         Fish fish = new Fish(x, y, ageToBreed, rand.Next(0, ageToBreed), breedInterval, 0);
                         lake.AddFish(fish);
-                        
                     }
                 } while (lake.Fishes.Count < fishCount);
+                do // щуки
+                {
+                    int x = rand.Next(0, sizeX);
+                    int y = rand.Next(0, sizeY);
+                    if (!lake.FishGrid.IsOccupiedByFish(x, y))
+                    {
+                        PredatorFish predatorFish = new PredatorFish(x, y, predatorAgeToBreed, rand.Next(0, predatorAgeToBreed), predatorBreedInterval, 0, predatorStarvationInterval, 0);
+                        lake.AddPredatorFish(predatorFish);
+                    }
+
+                } while (lake.PredatorFishes.Count < predatorCount);
             DrawLake();
         }
 
@@ -72,6 +85,10 @@ namespace lab3_sys
                 {
                     g.FillRectangle(Brushes.Orange, fish.X * pixelSize, fish.Y * pixelSize, pixelSize, pixelSize);
                 });
+                lake.PredatorFishes.ForEach(predatorFish =>
+                {
+                    g.FillRectangle(Brushes.Red, predatorFish.X * pixelSize, predatorFish.Y * pixelSize, pixelSize, pixelSize);
+                });
             }
             pictureBox1.Invalidate();
         }
@@ -81,11 +98,11 @@ namespace lab3_sys
         {
             lake.Fishes.ForEach(fish =>
             {
-                fish.Move(lake.FishPos);
+                fish.Move(lake.FishGrid);
+                fish.TickFish();
             });
 
             lake.ReloadFishPositions();
-
         }
 
         private void Step2() // карасі розмножуються
@@ -93,8 +110,7 @@ namespace lab3_sys
             List<Fish> newFishes = new List<Fish>();
             lake.Fishes.ForEach(fish =>
             {
-                fish.TickFish();
-                Fish newFish = fish.Breed(lake.FishPos);
+                Fish newFish = fish.Breed(lake.FishGrid);
                 if (newFish != null)
                 {
                     newFishes.Add(newFish);
@@ -103,10 +119,53 @@ namespace lab3_sys
             newFishes.ForEach(fish => lake.AddFish(fish));
         }
 
+        private void Step3() // хижаки рухаються та їдять карасів
+        {
+            List<(int, int)> deadFishes = new List<(int, int)>();
+            lake.PredatorFishes.ForEach(predatorFish =>
+            {
+                predatorFish.TickFish();
+                (int, int) preyPosition = predatorFish.SearchAndEatPrey(lake.FishGrid);
+                if (preyPosition != (-1, -1))
+                {
+                    deadFishes.Add(preyPosition);
+                }
+            });
+            deadFishes.ForEach(position => lake.RemoveFishByPosition(position.Item1, position.Item2));
+            lake.ReloadFishPositions();
+        }
+
+        private void Step4() // хижаки розмножуються 
+        {
+            List<PredatorFish> newPredatorFishes = new List<PredatorFish>();
+            
+            lake.PredatorFishes.ForEach(predatorFish =>
+            {
+                PredatorFish newPredatorFish = predatorFish.Breed(lake.FishGrid);
+                if (newPredatorFish != null)
+                {
+                    newPredatorFishes.Add(newPredatorFish);
+                }
+            });
+            newPredatorFishes.ForEach(predatorFish => lake.AddPredatorFish(predatorFish));
+            lake.ReloadFishPositions();
+        }
+
+        private void Step5() // хижаки вмирають з голоду
+        {
+            var deadPredatorFishes = lake.PredatorFishes.Where(p => !p.IsAlive).ToList();
+            deadPredatorFishes.ForEach(predatorFish => lake.RemovePredatorFish(predatorFish));
+            lake.ReloadFishPositions();
+        }
+
+
         private void Simulate()
         {
             Step1();
             Step2();
+            Step3();
+            Step4();
+            Step5();
             DrawLake();
         }
 
@@ -114,7 +173,7 @@ namespace lab3_sys
         private void startBtn_Click(object sender, EventArgs e)
         {
             InitializeBuffer();
-            InitializeLake(40);
+            InitializeLake(50, 10);
             timer1.Start();
         }
 

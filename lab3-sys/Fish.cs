@@ -11,11 +11,13 @@ namespace lab3_sys
         protected int x;
         protected int y;
 
-        private int ageToBreed;
-        private int currentAge;
+        protected int ageToBreed;
+        protected int currentAge;
 
-        private int breedInterval;
-        private int lastTimeBreeding;
+        protected int breedInterval;
+        protected int lastTimeBreeding;
+
+        protected bool isAlive = true;
 
         protected static Random rand = new Random();
         public Fish(int x, int y, int ageToBreed, int currentAge, int breedInterval, int lastTimeBreeding)
@@ -33,41 +35,47 @@ namespace lab3_sys
         public int AgeToBreed => ageToBreed;
         public int BreedInterval => breedInterval;
         public int LastTimeBreeding => lastTimeBreeding;
-
-        private List<(int, int)> SearchFreeSpaces(bool[,] fishPos) // left right up down
+        public bool IsAlive => isAlive;
+        protected int[,] SearchAvailableSpaces(int width, int height)
         {
             int[,] availableDirections = new int[4, 2];
 
             if (x > 0) availableDirections[0, 0] = x - 1; // left
-            else availableDirections[0, 0] = fishPos.GetLength(0) - 1;
+            else availableDirections[0, 0] = width - 1;
             availableDirections[0, 1] = y;
 
-            if (x < fishPos.GetLength(0) - 1) availableDirections[1, 0] = x + 1; // right
+            if (x < width - 1) availableDirections[1, 0] = x + 1; // right
             else availableDirections[1, 0] = 0;
             availableDirections[1, 1] = y;
 
             if (y > 0) availableDirections[2, 1] = y - 1; // up
-            else availableDirections[2, 1] = fishPos.GetLength(1) - 1;
+            else availableDirections[2, 1] = height - 1;
             availableDirections[2, 0] = x;
 
-            if (y < fishPos.GetLength(1) - 1) availableDirections[3, 1] = y + 1; // down
+            if (y < height - 1) availableDirections[3, 1] = y + 1; // down
             else availableDirections[3, 1] = 0;
             availableDirections[3, 0] = x;
+
+            return availableDirections;
+        }
+        protected List<(int, int)> SearchFreeSpaces(FishGrid fishGrid) // left right up down
+        {
+            int[,] availableDirections = SearchAvailableSpaces(fishGrid.FishPositions.GetLength(0), fishGrid.FishPositions.GetLength(1));
 
             List<(int, int)> freeDirections = new List<(int, int)>();
 
             for (int i = 0; i < 4; i++)
             {
-                if (!fishPos[availableDirections[i, 0], availableDirections[i, 1]])
+                if (!fishGrid.isOccupied(availableDirections[i, 0], availableDirections[i, 1]))
                 {
                     freeDirections.Add((availableDirections[i, 0], availableDirections[i, 1]));
                 }
             }
             return freeDirections;
         }
-        public virtual void Move(bool[,] fishPos) 
+        public virtual void Move(FishGrid FishPos) // без virtual
         {
-            List<(int, int)> freeDirections = SearchFreeSpaces(fishPos);
+            List<(int, int)> freeDirections = SearchFreeSpaces(FishPos);
 
             if (freeDirections.Count > 0)
             {
@@ -75,22 +83,21 @@ namespace lab3_sys
                 x = freeDirections[direction].Item1;
                 y = freeDirections[direction].Item2;
             }
-            
         }
-        public void TickFish() // риба кожен тік росте або рахує час з останнього розмноження
+        public virtual void TickFish() // риба кожен тік росте або рахує час з останнього розмноження
         {
             if(currentAge < ageToBreed)
                 currentAge++;
             else lastTimeBreeding++;
         }
-        public bool CanBreed()
+        public virtual bool CanBreed()
         {
             return currentAge >= ageToBreed && lastTimeBreeding >= breedInterval;
         }
 
-        public virtual Fish Breed(bool[,] fishPos)
+        public virtual Fish Breed(FishGrid fishGrid)
         {
-            List<(int, int)> freeDirections = SearchFreeSpaces(fishPos);
+            List<(int, int)> freeDirections = SearchFreeSpaces(fishGrid);
             if (CanBreed())
             {
                 if (freeDirections.Count > 0)
@@ -102,6 +109,11 @@ namespace lab3_sys
                 return null;
             }
             return null;
+        }
+
+        public virtual void Die()
+        {
+            isAlive = false;
         }
     }
 }
