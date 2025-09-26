@@ -40,7 +40,6 @@ namespace lab3_sys
         public void RemoveFish(Fish fish)
         {
             fishes.Remove(fish);
-            fishGrid.SetPosition(fish.X, fish.Y, ' ');
         }
         public void RemoveFishByPosition(int x, int y)
         {
@@ -54,18 +53,6 @@ namespace lab3_sys
         {
             predatorFishes.Remove(predatorFish);
             fishGrid.SetPosition(predatorFish.X, predatorFish.Y, ' ');
-        }
-        public void ReloadFishPositions()
-        {
-            fishGrid.ClearFishPositions();
-            foreach (var fish in fishes)
-            {
-                fishGrid.SetPosition(fish.X, fish.Y, 'f');
-            }
-            foreach (var predatorFish in predatorFishes)
-            {
-                fishGrid.SetPosition(predatorFish.X, predatorFish.Y, 'p');
-            }
         }
     }
 }

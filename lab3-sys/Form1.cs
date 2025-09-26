@@ -15,18 +15,25 @@ namespace lab3_sys
     {
         private Bitmap buffer;
         private int sizeX = 50; 
-        private int sizeY = 50;
+        private int sizeY = 70;
         private int pixelSize = 5;
         private Random rand = new Random();
 
         private static Lake lake;
 
-        private static int ageToBreed = 3;
-        private static int breedInterval = 3;
 
-        private static int predatorAgeToBreed = 4;
-        private static int predatorBreedInterval = 4;
-        private static int predatorStarvationInterval = 6;
+        private static int initialFishCount = 70;
+        private static int initialPredatorCount = 30;
+
+        private static int ageToBreed = 4;
+        private static int breedInterval = 6;
+
+        private static int predatorAgeToBreed = 5;
+        private static int predatorBreedInterval = 7;
+        private static int predatorStarvationInterval = 7;
+
+        private int evolutionStage = 0;
+
         public Form1()
         {
             InitializeComponent();
@@ -101,8 +108,6 @@ namespace lab3_sys
                 fish.Move(lake.FishGrid);
                 fish.TickFish();
             });
-
-            lake.ReloadFishPositions();
         }
 
         private void Step2() // карасі розмножуються
@@ -121,18 +126,15 @@ namespace lab3_sys
 
         private void Step3() // хижаки рухаються та їдять карасів
         {
-            List<(int, int)> deadFishes = new List<(int, int)>();
             lake.PredatorFishes.ForEach(predatorFish =>
             {
                 predatorFish.TickFish();
                 (int, int) preyPosition = predatorFish.SearchAndEatPrey(lake.FishGrid);
                 if (preyPosition != (-1, -1))
                 {
-                    deadFishes.Add(preyPosition);
+                    lake.RemoveFishByPosition(preyPosition.Item1, preyPosition.Item2);
                 }
             });
-            deadFishes.ForEach(position => lake.RemoveFishByPosition(position.Item1, position.Item2));
-            lake.ReloadFishPositions();
         }
 
         private void Step4() // хижаки розмножуються 
@@ -148,14 +150,16 @@ namespace lab3_sys
                 }
             });
             newPredatorFishes.ForEach(predatorFish => lake.AddPredatorFish(predatorFish));
-            lake.ReloadFishPositions();
         }
 
         private void Step5() // хижаки вмирають з голоду
         {
-            var deadPredatorFishes = lake.PredatorFishes.Where(p => !p.IsAlive).ToList();
-            deadPredatorFishes.ForEach(predatorFish => lake.RemovePredatorFish(predatorFish));
-            lake.ReloadFishPositions();
+            var deadPredators = lake.PredatorFishes.Where(p => !p.IsAlive).ToList();
+
+            foreach (var predator in deadPredators)
+            {
+                lake.RemovePredatorFish(predator);
+            }
         }
 
 
@@ -173,13 +177,15 @@ namespace lab3_sys
         private void startBtn_Click(object sender, EventArgs e)
         {
             InitializeBuffer();
-            InitializeLake(50, 10);
+            InitializeLake(initialFishCount, initialPredatorCount);
             timer1.Start();
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
             Simulate();
+            evolutionStage++;
+            evolutionStageLabel.Text = evolutionStage.ToString();
         }
     }
 }

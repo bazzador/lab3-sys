@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace lab3_sys
 {
@@ -16,8 +13,6 @@ namespace lab3_sys
 
         protected int breedInterval;
         protected int lastTimeBreeding;
-
-        protected bool isAlive = true;
 
         protected static Random rand = new Random();
         public Fish(int x, int y, int ageToBreed, int currentAge, int breedInterval, int lastTimeBreeding)
@@ -35,7 +30,6 @@ namespace lab3_sys
         public int AgeToBreed => ageToBreed;
         public int BreedInterval => breedInterval;
         public int LastTimeBreeding => lastTimeBreeding;
-        public bool IsAlive => isAlive;
         protected int[,] SearchAvailableSpaces(int width, int height)
         {
             int[,] availableDirections = new int[4, 2];
@@ -73,15 +67,17 @@ namespace lab3_sys
             }
             return freeDirections;
         }
-        public virtual void Move(FishGrid FishPos) // без virtual
+        public void Move(FishGrid fishGrid)
         {
-            List<(int, int)> freeDirections = SearchFreeSpaces(FishPos);
+            List<(int, int)> freeDirections = SearchFreeSpaces(fishGrid);
 
             if (freeDirections.Count > 0)
             {
+                fishGrid.SetPosition(x, y, ' ');
                 int direction = rand.Next(0, freeDirections.Count);
                 x = freeDirections[direction].Item1;
                 y = freeDirections[direction].Item2;
+                fishGrid.SetPosition(x, y, 'f');
             }
         }
         public virtual void TickFish() // риба кожен тік росте або рахує час з останнього розмноження
@@ -109,11 +105,6 @@ namespace lab3_sys
                 return null;
             }
             return null;
-        }
-
-        public virtual void Die()
-        {
-            isAlive = false;
         }
     }
 }

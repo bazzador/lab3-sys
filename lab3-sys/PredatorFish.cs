@@ -10,6 +10,7 @@ namespace lab3_sys
     {
         private int starvationInterval;
         private int lastTimeEating;
+        private bool isAlive = true;
 
         public PredatorFish(int x, int y, int ageToBreed, int currentAge, int breedInterval, int lastTimeBreeding, int starvationInterval, int lastTimeEating)
             : base(x, y, ageToBreed, currentAge, breedInterval, lastTimeBreeding)
@@ -20,7 +21,7 @@ namespace lab3_sys
 
         public int StarvationInterval => starvationInterval;
         public int LastTimeEating => lastTimeEating;
-
+        public bool IsAlive => isAlive;
         private List<(int, int)> SearchForPrey(FishGrid fishGrid) // private (int, int)
         {
             int[,] availableDirections = SearchAvailableSpaces(fishGrid.FishPositions.GetLength(0), fishGrid.FishPositions.GetLength(1));
@@ -43,19 +44,32 @@ namespace lab3_sys
 
             if (preyDirections.Count > 0)
             {
+                fishGrid.SetPosition(x, y, ' ');
                 int direction = rand.Next(0, preyDirections.Count);
                 x = preyDirections[direction].Item1;
                 y = preyDirections[direction].Item2;
+                fishGrid.SetPosition(x, y, 'p');
                 lastTimeEating = 0;
                 return (x, y);
             }
-            else Move(fishGrid); // костильно
+            else
+            {
+                List<(int, int)> freeDirections = SearchFreeSpaces(fishGrid);
+                if (freeDirections.Count > 0)
+                {
+                    fishGrid.SetPosition(x, y, ' ');
+                    int direction = rand.Next(0, freeDirections.Count);
+                    x = freeDirections[direction].Item1;
+                    y = freeDirections[direction].Item2;
+                    fishGrid.SetPosition(x, y, 'p');
+                }
+            }
             return (-1, -1); // null
         }
 
         public override bool CanBreed()
         {
-            return base.CanBreed() && lastTimeEating == 0;
+            return base.CanBreed() && isAlive;
         }
         public new PredatorFish Breed(FishGrid fishGrid)
         {
@@ -76,19 +90,19 @@ namespace lab3_sys
         public override void TickFish()
         {
             base.TickFish();
+            lastTimeEating++;
             if (IsStarving())
             {
                 Die();
-            }
-            else
-            {
-                lastTimeEating++;
             }
         }
         private bool IsStarving()
         {
             return lastTimeEating >= starvationInterval;
         }
-       
+        private void Die()
+        {
+            isAlive = false;
+        }
     }
 }
