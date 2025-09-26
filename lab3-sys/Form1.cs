@@ -14,25 +14,25 @@ namespace lab3_sys
     public partial class Form1 : Form
     {
         private Bitmap buffer;
-        private int sizeX = 50; 
-        private int sizeY = 70;
+        private int sizeX = 80; 
+        private int sizeY = 60;
         private int pixelSize = 5;
         private Random rand = new Random();
 
         private static Lake lake;
 
 
-        private static int initialFishCount = 70;
-        private static int initialPredatorCount = 30;
+        private static int initialFishCount = 600;
+        private static int initialPredatorCount = 80;
 
-        private static int ageToBreed = 4;
-        private static int breedInterval = 6;
+        private static int ageToBreed = 6;
+        private static int breedInterval = 2;
 
         private static int predatorAgeToBreed = 5;
-        private static int predatorBreedInterval = 7;
-        private static int predatorStarvationInterval = 7;
+        private static int predatorBreedInterval = 4;
+        private static int predatorStarvationInterval = 6;
 
-        private int evolutionStage = 0;
+        private int evolutionStage;
 
         public Form1()
         {
@@ -179,6 +179,7 @@ namespace lab3_sys
             InitializeBuffer();
             InitializeLake(initialFishCount, initialPredatorCount);
             timer1.Start();
+            evolutionStage = 0;
         }
 
         private void timer1_Tick(object sender, EventArgs e)
