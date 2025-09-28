@@ -35,12 +35,13 @@
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.label1 = new System.Windows.Forms.Label();
             this.evolutionStageLabel = new System.Windows.Forms.Label();
+            this.restartBtn = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // pictureBox1
             // 
-            this.pictureBox1.Location = new System.Drawing.Point(162, 87);
+            this.pictureBox1.Location = new System.Drawing.Point(31, 77);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(200, 200);
             this.pictureBox1.TabIndex = 0;
@@ -48,7 +49,7 @@
             // 
             // startBtn
             // 
-            this.startBtn.Location = new System.Drawing.Point(489, 137);
+            this.startBtn.Location = new System.Drawing.Point(592, 135);
             this.startBtn.Name = "startBtn";
             this.startBtn.Size = new System.Drawing.Size(75, 23);
             this.startBtn.TabIndex = 1;
@@ -58,12 +59,14 @@
             // 
             // stopBtn
             // 
-            this.stopBtn.Location = new System.Drawing.Point(489, 175);
+            this.stopBtn.Enabled = false;
+            this.stopBtn.Location = new System.Drawing.Point(592, 173);
             this.stopBtn.Name = "stopBtn";
             this.stopBtn.Size = new System.Drawing.Size(75, 23);
             this.stopBtn.TabIndex = 2;
             this.stopBtn.Text = "Stop";
             this.stopBtn.UseVisualStyleBackColor = true;
+            this.stopBtn.Click += new System.EventHandler(this.stopBtn_Click);
             // 
             // timer1
             // 
@@ -72,7 +75,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(486, 225);
+            this.label1.Location = new System.Drawing.Point(589, 223);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(83, 13);
             this.label1.TabIndex = 3;
@@ -81,17 +84,29 @@
             // evolutionStageLabel
             // 
             this.evolutionStageLabel.AutoSize = true;
-            this.evolutionStageLabel.Location = new System.Drawing.Point(570, 225);
+            this.evolutionStageLabel.Location = new System.Drawing.Point(673, 223);
             this.evolutionStageLabel.Name = "evolutionStageLabel";
             this.evolutionStageLabel.Size = new System.Drawing.Size(13, 13);
             this.evolutionStageLabel.TabIndex = 4;
             this.evolutionStageLabel.Text = "0";
+            // 
+            // restartBtn
+            // 
+            this.restartBtn.Enabled = false;
+            this.restartBtn.Location = new System.Drawing.Point(673, 153);
+            this.restartBtn.Name = "restartBtn";
+            this.restartBtn.Size = new System.Drawing.Size(75, 23);
+            this.restartBtn.TabIndex = 5;
+            this.restartBtn.Text = "Restart";
+            this.restartBtn.UseVisualStyleBackColor = true;
+            this.restartBtn.Click += new System.EventHandler(this.restartBtn_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.restartBtn);
             this.Controls.Add(this.evolutionStageLabel);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.stopBtn);
@@ -113,6 +128,7 @@
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label evolutionStageLabel;
+        private System.Windows.Forms.Button restartBtn;
     }
 }
 

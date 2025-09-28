@@ -176,10 +176,16 @@ namespace lab3_sys
 
         private void startBtn_Click(object sender, EventArgs e)
         {
-            InitializeBuffer();
-            InitializeLake(initialFishCount, initialPredatorCount);
+            if(lake == null)
+            {
+                InitializeBuffer();
+                InitializeLake(initialFishCount, initialPredatorCount);
+                evolutionStage = 0;
+            }
             timer1.Start();
-            evolutionStage = 0;
+            
+            startBtn.Enabled = false;
+            stopBtn.Enabled = true;
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -187,6 +193,24 @@ namespace lab3_sys
             Simulate();
             evolutionStage++;
             evolutionStageLabel.Text = evolutionStage.ToString();
+        }
+
+        private void stopBtn_Click(object sender, EventArgs e)
+        {
+            timer1.Stop();
+            stopBtn.Enabled = false;
+            startBtn.Enabled = true;
+            restartBtn.Enabled = true;
+        }
+
+        private void restartBtn_Click(object sender, EventArgs e)
+        {
+            InitializeBuffer();
+            evolutionStage = 0;
+            evolutionStageLabel.Text = "0";
+            lake = null;
+            restartBtn.Enabled = false;
+            startBtn.Enabled = true;
         }
     }
 }
