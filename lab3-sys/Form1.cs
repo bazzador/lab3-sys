@@ -14,23 +14,23 @@ namespace lab3_sys
     public partial class Form1 : Form
     {
         private Bitmap buffer;
-        private int sizeX = 80; 
-        private int sizeY = 60;
-        private int pixelSize = 5;
         private Random rand = new Random();
 
         private static Lake lake;
 
+        private int sizeX = 80;
+        private int sizeY = 60;
+        private int pixelSize = 5;
 
-        private static int initialFishCount = 600;
-        private static int initialPredatorCount = 80;
+        private int initialFishCount = 600;
+        private int initialPredatorCount = 80;
 
-        private static int ageToBreed = 6;
-        private static int breedInterval = 2;
+        private int ageToBreed = 6;
+        private int breedInterval = 2;
 
-        private static int predatorAgeToBreed = 5;
-        private static int predatorBreedInterval = 4;
-        private static int predatorStarvationInterval = 6;
+        private int predatorAgeToBreed = 5;
+        private int predatorBreedInterval = 4;
+        private int predatorStarvationInterval = 6;
 
         private int evolutionStage;
 
@@ -171,17 +171,100 @@ namespace lab3_sys
             Step4();
             Step5();
             DrawLake();
+            if(lake.Fishes.Count == 0 || lake.PredatorFishes.Count == 0)
+            {
+                timer1.Stop();
+                stopBtn.Enabled = false;
+                startBtn.Enabled = false;
+                restartBtn.Enabled = true;
+                MessageBox.Show("Simulation ended. One of the species has gone extinct.");
+            }
         }
 
 
         private void startBtn_Click(object sender, EventArgs e)
         {
-            if(lake == null)
+
+            if (!int.TryParse(initialFishCountTextBox.Text, out initialFishCount) || initialFishCount < 0)
+            {
+                MessageBox.Show("Будь ласка, введіть коректну кількість риб (ціле невід'ємне число)");
+                return;
+            }
+
+            if (!int.TryParse(initialPredatorCountTextBox.Text, out initialPredatorCount) || initialPredatorCount < 0)
+            {
+                MessageBox.Show("Будь ласка, введіть коректну кількість хижаків (ціле невід'ємне число)");
+                return;
+            }
+
+            if (!int.TryParse(ageToBreedTextBox.Text, out ageToBreed) || ageToBreed <= 0)
+            {
+                MessageBox.Show("Будь ласка, введіть коректний вік розмноження риб (ціле додатне число)");
+                return;
+            }
+
+            if (!int.TryParse(breedIntervalTextBox.Text, out breedInterval) || breedInterval <= 0)
+            {
+                MessageBox.Show("Будь ласка, введіть коректний інтервал розмноження риб (ціле додатне число)");
+                return;
+            }
+
+            if (!int.TryParse(predatorAgeToBreedTextBox.Text, out predatorAgeToBreed) || predatorAgeToBreed <= 0)
+            {
+                MessageBox.Show("Будь ласка, введіть коректний вік розмноження хижаків (ціле додатне число)");
+                return;
+            }
+
+            if (!int.TryParse(predatorBreedIntervalTextBox.Text, out predatorBreedInterval) || predatorBreedInterval <= 0)
+            {
+                MessageBox.Show("Будь ласка, введіть коректний інтервал розмноження хижаків (ціле додатне число)");
+                return;
+            }
+
+            if (!int.TryParse(predatorStarvationIntervalTextBox.Text, out predatorStarvationInterval) || predatorStarvationInterval <= 0)
+            {
+                MessageBox.Show("Будь ласка, введіть коректний інтервал голодування хижаків (ціле додатне число)");
+                return;
+            }
+
+            if (!int.TryParse(sizeX_TextBox.Text, out sizeX) || sizeX <= 0)
+            {
+                MessageBox.Show("Будь ласка, введіть коректний розмір X (ціле додатне число)");
+                return;
+            }
+
+            if (!int.TryParse(sizeY_TextBox.Text, out sizeY) || sizeY <= 0)
+            {
+                MessageBox.Show("Будь ласка, введіть коректний розмір Y (ціле додатне число)");
+                return;
+            }
+
+            if (!int.TryParse(pixelSizeTextBox.Text, out pixelSize) || pixelSize <= 0)
+            {
+                MessageBox.Show("Будь ласка, введіть коректний розмір пікселя (ціле додатне число)");
+                return;
+            }
+
+            int maxCapacity = sizeX * sizeY;
+            if (initialFishCount + initialPredatorCount > maxCapacity)
+            {
+                MessageBox.Show($"Загальна кількість тварин ({initialFishCount + initialPredatorCount}) перевищує місткість озера ({maxCapacity}). Зменшіть кількість риб або хижаків.");
+                return;
+            }
+
+            if (!int.TryParse(timerIntervalTextBox.Text, out int timerInterval) || timerInterval <= 0)
+            {
+                MessageBox.Show("Будь ласка, введіть коректний інтервал таймера (ціле додатне число)");
+                return;
+            }
+
+            if (lake == null)
             {
                 InitializeBuffer();
                 InitializeLake(initialFishCount, initialPredatorCount);
                 evolutionStage = 0;
             }
+            timer1.Interval = timerInterval;
             timer1.Start();
             
             startBtn.Enabled = false;
